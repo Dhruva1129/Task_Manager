@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLoading } from '../context/LoadingContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [btnLoading, setBtnLoading] = useState(false);
   const { login } = useAuth();
+  const { setIsLoading } = useLoading();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setBtnLoading(true);
+    setIsLoading(true);
     try {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setBtnLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -54,7 +63,7 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '12px' }}>
+          <button type="submit" className={`btn btn-primary ${btnLoading ? 'btn-loading' : ''}`} style={{ width: '100%', marginTop: '12px' }}>
             Sign In
           </button>
         </form>
